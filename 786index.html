@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="High-Performance File Delivery Portal">
+  <meta name="monetag" content="f6b0e1661b93d9b766c008af3ade95fa">
+  <title>Secure File Delivery Portal</title>
+  
+  <!-- Sleek Typography: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. CSS VARIABLES & CORE CONFIGURATION
+       ========================================================================== */
+    :root {
+      --bg-surface: #070709;
+      --bg-card: #111116;
+      --bg-card-hover: #181820;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(0, 255, 135, 0.4);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      /* Premium Emerald Accent Theme */
+      --accent-green: #00ff87;
+      --accent-green-dark: #05b05f;
+      --accent-glow: rgba(0, 255, 135, 0.25);
+      --accent-glow-strong: rgba(0, 255, 135, 0.5);
+
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-full: 9999px;
+
+      --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      
+      --container-max-width: 860px;
+    }
+
+    /* ==========================================================================
+       2. RESET & BASE STYLES
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      color-scheme: dark;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Subtle grid background pattern */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(0, 255, 135, 0.08) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       3. NAVIGATION & HEADER
+       ========================================================================== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 7, 9, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 20px;
+    }
+
+    .header-container {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-logo span {
+      color: var(--accent-green);
+    }
+
+    /* نیا ڈایزائن: آرٹیکل کے اوپر والا سکرول ٹیکسٹ */
+    .scroll-prompt-text {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent-green);
+      text-shadow: 0 0 20px var(--accent-glow-strong);
+      margin-bottom: 35px;
+      margin-top: 10px;
+      letter-spacing: -1px;
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+
+    .scroll-prompt-text:hover {
+      color: #ffffff;
+      text-shadow: 0 0 25px var(--accent-glow-strong);
+    }
+
+    /* ==========================================================================
+       4. LAYOUT & CONTENT STREAM
+       ========================================================================== */
+    .app-container {
+      max-width: var(--container-max-width);
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+
+    .page-view {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .page-view.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Article Card Styles */
+    .article-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 36px;
+      transition: var(--transition-smooth);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .article-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .image-wrapper {
+      position: relative;
+      width: 100%;
+      height: 340px;
+      overflow: hidden;
+      background: #1a1a22;
+    }
+
+    .image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .article-card:hover .image-wrapper img {
+      transform: scale(1.03);
+    }
+
+    .article-body {
+      padding: 32px;
+    }
+
+    .article-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: var(--text-main);
+    }
+
+    .article-subtitle {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent-green);
+      margin-bottom: 20px;
+    }
+
+    .article-text p {
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      margin-bottom: 16px;
+    }
+
+    .article-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .quote-box {
+      border-left: 3px solid var(--accent-green);
+      background: rgba(0, 255, 135, 0.04);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 20px 0;
+      font-style: italic;
+      color: var(--text-main);
+    }
+
+    .article-list {
+      list-style: none;
+      margin: 20px 0;
+    }
+
+    .article-list li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+    }
+
+    .article-list li::before {
+      content: "•";
+      color: var(--accent-green);
+      font-weight: bold;
+      font-size: 1.2rem;
+      position: absolute;
+      left: 6px;
+      top: -2px;
+    }
+
+    /* Placeholder text formatting for snippet content */
+    .raw-content-block {
+      white-space: pre-line;
+      color: var(--text-muted);
+      font-size: 0.98rem;
+    }
+
+    /* ==========================================================================
+       5. TIMER & DOWNLOAD GATEWAY SECTION
+       ========================================================================== */
+    .gateway-card {
+      background: linear-gradient(180deg, var(--bg-card) 0%, rgba(17, 17, 22, 0.9) 100%);
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 48px;
+      box-shadow: 0 0 30px rgba(0, 255, 135, 0.08);
+    }
+
+    .gateway-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .gateway-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .gateway-status {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .timer-display {
+      font-size: 3rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent-green);
+      margin-bottom: 20px;
+      text-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    /* Custom Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      max-width: 420px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-full);
+      margin: 0 auto 28px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-green-dark), var(--accent-green));
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px var(--accent-green);
+    }
+
+    /* Glowing Main Action Button */
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--accent-green);
+      color: #04120a;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 16px 42px;
+      border: none;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition-smooth);
+      box-shadow: 0 0 25px var(--accent-glow);
+      opacity: 0.4;
+      pointer-events: none;
+      transform: scale(0.98);
+    }
+
+    .action-btn.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+      animation: pulseGlow 2s infinite alternate;
+    }
+
+    .action-btn.active:hover {
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 0 35px rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 15px var(--accent-glow); }
+      100% { box-shadow: 0 0 35px var(--accent-glow-strong); }
+    }
+
+    /* Footer */
+    .site-footer {
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* Mobile Responsive Tweaks */
+    @media (max-width: 640px) {
+      .app-container {
+        padding: 20px 14px 60px;
+      }
+      .scroll-prompt-text {
+        font-size: 1.7rem;
+        margin-bottom: 25px;
+      }
+      .image-wrapper {
+        height: 220px;
+      }
+      .article-body {
+        padding: 20px;
+      }
+      .article-title {
+        font-size: 1.3rem;
+      }
+      .timer-display {
+        font-size: 2.4rem;
+      }
+      .action-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="brand-logo">
+        <span>●</span> FILEFLOW
+      </div>
+      <!-- یہاں سے بٹن ہٹا دیا گیا ہے -->
+    </div>
+  </header>
+
+  <main class="app-container">
+
+    <!-- نیا سکرول ٹیکسٹ آرٹیکلز کے بالکل اوپر لگایا گیا ہے -->
+    <div class="scroll-prompt-text" onclick="scrollToGateway()">Scroll Down for File</div>
+
+    <!-- ==========================================================================
+         PAGE 1: INITIAL VIEW
+         ========================================================================== -->
+    <div id="page1" class="page-view active">
+      
+      <!-- Article 1 -->
+      <article class="article-card">
+        <div class="image-wrapper">
+          <!-- تصویر کا لنک تبدیل کر دیا ہے تاکہ امیج شو ہو سکے -->
+          <img src="https://picsum.photos/860/340?random=1" alt="Mercy and Equality" loading="lazy">
+        </div>
+        <div class="article-body">
+          <h1 class="article-title">A Revolution of Mercy and Equality</h1>
+          <div class="article-subtitle">How Kindness Changed the World</div>
+          <div class="article-text">
+            <p>In today's world, people everywhere are searching for fairness, social justice, and true equality. We struggle against discrimination based on color, wealth, and status. But over 1,400 years ago, a message was delivered that reshaped human rights forever.</p>
+            
+            <h3 style="color: var(--text-main); margin: 20px 0 10px;">True Equality Beyond Race and Wealth</h3>
+            <p>Prophet Muhammad (peace be upon him) brought a message that broke all social barriers. In his famous last speech, he declared a principle that remains unmatched:</p>
+            
+            <div class="quote-box">
+              "An Arab has no superiority over a non-Arab, nor a non-Arab over an Arab; a white person has no superiority over a black person, nor a black person over a white person—except by good character and righteousness."
+            </div>
+
+            <p>This wasn't just advice; it became the lived reality of a society where kings and servants stood shoulder-to-shoulder in daily prayer.</p>
+
+            <h3 style="color: var(--text-main); margin: 20px 0 10px;">Mercy to All Creation</h3>
+            <p>Islam is not just a set of religious rules; it is a way of living with empathy and respect. Prophet Muhammad taught that:</p>
+            <ul class="article-list">
+              <li>Showing kindness to your neighbors—regardless of their faith—is an obligation.</li>
+              <li>Caring for animals and the environment brings spiritual rewards.</li>
+              <li>Smiling at someone is considered an act of charity.</li>
+            </ul>
+
+            <h3 style="color: var(--text-main); margin: 20px 0 10px;">An Invitation to Reflect</h3>
+            <p>Islam invites humanity to a way of life built on truth, justice, and compassion. It encourages us to use our intellect, care for one another, and build a meaningful relationship with our Creator.</p>
+            <p>Take a moment to look into Islam with an open mind—you might just find the answers your heart has been looking for.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Article 2 -->
+      <article class="article-card">
+        <div class="image-wrapper">
+          <!-- تصویر کا لنک تبدیل کر دیا ہے -->
+          <img src="https://picsum.photos/860/340?random=2" alt="Finding Peace" loading="lazy">
+        </div>
+        <div class="article-body">
+          <h2 class="article-title">Finding Peace in a Busy World</h2>
+          <div class="article-subtitle">What Are We Really Searching For?</div>
+          <div class="article-text">
+            <p>Have you ever paused for a moment in your busy life and wondered, <em>"What is all of this really for?"</em></p>
+            <p>We live in a world full of noise, technology, and endless goals. We buy better gadgets, chase higher positions, and try to stay connected 24/7. Yet, late at night, many people still feel an empty quiet inside. Why is true peace so hard to find?</p>
+            
+            <h3 style="color: var(--text-main); margin: 20px 0 10px;">A Logical Look at Our Universe</h3>
+            <p>Think about a smartphone. When you see its sleek design and complex software, you naturally know someone designed it with a purpose. It didn't just happen by accident.</p>
+            <p>Now, look at the universe—the precise rotation of celestial bodies, the complexity of biological life, and the delicate balance of ecosystems...</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Page 1 Bottom Gateway (Timer 1) -->
+      <section id="gateway-page-1" class="gateway-card">
+        <h3 class="gateway-title">File Access Authorization</h3>
+        <p class="gateway-status" id="timer1-status">Please wait 10 seconds, your file is preparing...</p>
+        
+        <div class="timer-display" id="timer1-count">10</div>
+        
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progress1-fill"></div>
+        </div>
+
+        <button id="btn-page1" class="action-btn" onclick="goToPage2()">
+          Get File
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </section>
+
+    </div>
+
+    <!-- ==========================================================================
+         PAGE 2: SECOND VIEW / TARGET PAGE
+         ========================================================================== -->
+    <div id="page2" class="page-view">
+      
+      <!-- Page 2 Content Stream -->
+      <article class="article-card">
+        <div class="image-wrapper">
+          <!-- تصویر کا لنک تبدیل کر دیا ہے -->
+          <img src="https://picsum.photos/860/340?random=3" alt="Target Document" loading="lazy">
+        </div>
+        <div class="article-body">
+          <h2 class="article-title">Final Link Verification</h2>
+          <div class="article-text">
+            <!-- EDITABLE: Article Text Page 2 -->
+            <p class="raw-content-block">ndndndnd nocebsbsbsbsbsnsn sbsbsjsbsbsbsbs</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Page 2 Final Download Gateway (Timer 2) -->
+      <section id="gateway-page-2" class="gateway-card">
+        <h3 class="gateway-title">Download Link Ready</h3>
+        <p class="gateway-status" id="timer2-status">Please wait 15 seconds for your download link...</p>
+        
+        <div class="timer-display" id="timer2-count">15</div>
+        
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progress2-fill"></div>
+        </div>
+
+        <button id="btn-page2" class="action-btn" onclick="executeFinalDownload()">
+          Get File
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </section>
+
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Secure File Portal. All rights reserved. Encrypted & High-Performance Delivery.</p>
+  </footer>
+
+  <!-- ==========================================================================
+       JAVASCRIPT APP LOGIC
+       ========================================================================== -->
+  <script>
+    /* ==========================================================================
+       CONFIGURABLE SETTINGS
+       ========================================================================== */
+    const CONFIG = {
+      PAGE1_TIMER_SECONDS: 10,
+      PAGE2_TIMER_SECONDS: 15,
+      // EDITABLE: Final destination Google Drive link
+      TARGET_URL: 'https://drive.google.com/file/d/1ay90Nn4kFD-I81DbKOZk4iQCjIzDHH0-/view?usp=drivesdk'
+    };
+
+    let timer1Started = false;
+    let timer2Started = false;
+
+    /* ==========================================================================
+       HELPER FUNCTIONS
+       ========================================================================== */
+    function scrollToGateway() {
+      const activePage = document.querySelector('.page-view.active');
+      const gateway = activePage.querySelector('.gateway-card');
+      if (gateway) {
+        gateway.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    /* Timer Implementation */
+    function startTimer(durationSeconds, countEl, progressEl, statusEl, buttonEl, onCompleteCallback) {
+      let timeLeft = durationSeconds;
+      
+      const updateUI = () => {
+        countEl.textContent = timeLeft;
+        const progressPercent = ((durationSeconds - timeLeft) / durationSeconds) * 100;
+        progressEl.style.width = `${progressPercent}%`;
+      };
+
+      updateUI();
+
+      const interval = setInterval(() => {
+        timeLeft--;
+        updateUI();
+
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          statusEl.textContent = "Your file is ready for access!";
+          buttonEl.classList.add('active');
+          if (onCompleteCallback) onCompleteCallback();
+        }
+      }, 1000);
+    }
+
+    /* Page Switcher Function */
+    function goToPage2() {
+      const page1 = document.getElementById('page1');
+      const page2 = document.getElementById('page2');
+
+      // Fade out Page 1
+      page1.style.opacity = '0';
+      page1.style.transform = 'translateY(-10px)';
+
+      setTimeout(() => {
+        page1.classList.remove('active');
+        page2.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Auto initiate Page 2 Timer
+        initPage2Timer();
+      }, 400);
+    }
+
+    /* Execute Final Target URL Redirect */
+    function executeFinalDownload() {
+      if (CONFIG.TARGET_URL) {
+        window.open(CONFIG.TARGET_URL, '_blank', 'noopener,noreferrer');
+      }
+    }
+
+    /* ==========================================================================
+       INTERSECTION OBSERVERS & EVENT LISTENERS
+       ========================================================================== */
+    
+    // Auto start Timer 1 when user scrolls near Page 1 Gateway
+    const gateway1El = document.getElementById('gateway-page-1');
+    const observer1 = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !timer1Started) {
+          timer1Started = true;
+          startTimer(
+            CONFIG.PAGE1_TIMER_SECONDS,
+            document.getElementById('timer1-count'),
+            document.getElementById('progress1-fill'),
+            document.getElementById('timer1-status'),
+            document.getElementById('btn-page1')
+          );
+        }
+      });
+    }, { threshold: 0.2 });
+
+    observer1.observe(gateway1El);
+
+    // Page 2 Timer Trigger
+    function initPage2Timer() {
+      if (!timer2Started) {
+        timer2Started = true;
+        startTimer(
+          CONFIG.PAGE2_TIMER_SECONDS,
+          document.getElementById('timer2-count'),
+          document.getElementById('progress2-fill'),
+          document.getElementById('timer2-status'),
+          document.getElementById('btn-page2')
+        );
+      }
+    }
+  </script>
+</body>
+</html>
